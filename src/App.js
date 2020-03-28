@@ -2,42 +2,148 @@ import React, { Component } from 'react';
 import TodoItem from "./components/TodoItem";
 import Header from "./components/layouts/Header";
 //import AddTodo from "./components/layouts/AddTodo";
+import  moment  from "moment";
 
-//Date(year, month, day, hour, minute, second)
-const oneday = 86400000;
 function cmpTime(start, end) {
 	return start - end;
 }
+
+function setToMidnithg(date) {
+	let retDate = moment(date).date(moment(date).date() + 1);
+	retDate = moment(retDate).hour(0); 
+	retDate = moment(retDate).minute(0);
+	retDate = moment(retDate).second(0);
+	retDate = moment(retDate).millisecond(0); 
+	//return moment(date).add(10, 's').toDate();
+	return retDate.toDate();
+}
+
+function addDays(date, days) {
+	return moment(date).add(days, 'd').toDate();
+}
+
+function subDays(date, days) {
+	return moment(date).subtract(days, 'd').toDate();
+}
+
+const daysOfWeek = [
+	"Sun",
+	"Mon",
+	"Tue",
+	"Wed",
+	"Thu",
+	"Fri",
+	"Sat"
+];
+
+const monthNames = [
+	"January", 
+	"February", 
+	"March", 
+	"April", 
+	"May", 
+	"June",
+	"July", 
+	"August", 
+	"September", 
+	"October", 
+	"November", 
+	"December"
+];
 
 class App extends Component {
 	state = {
 		todos: [
 			{
 				id: 0, 
-				title: "take out the trash",
-				start_at: new Date("October 13, 2020 13:00:00"),
+				title: "task 0",
+				start_at: addDays(new Date(), 0),
 				period: 1,
 				del: [], 
 				completed: []
 			},
 			{
 				id: 1, 
-				title: "Dummy dum dum dum",
-				start_at: new Date("October 13, 2020 13:00:00"),
+				title: "task 1",
+				start_at: addDays(new Date(), 1),
 				period: 2,
 				del: [], 
 				completed: []
 			},
 			{
 				id: 2, 
-				title: "A meeting",
-				start_at: new Date("October 13, 2020 13:00:00"),
+				title: "task 2",
+				start_at: addDays(new Date(), 2),
 				period: 2, 
 				del: [], 
 				completed: []
-			}
+			},
+			{
+				id: 3, 
+				title: "task 3",
+				start_at: addDays(new Date(), 3),
+				period: 1,
+				del: [], 
+				completed: []
+			},
+			{
+				id: 4, 
+				title: "task 4",
+				start_at: addDays(new Date(), 4),
+				period: 2,
+				del: [], 
+				completed: []
+			},
+			{
+				id: 5, 
+				title: "task 5",
+				start_at: addDays(new Date(), 5),
+				period: 2, 
+				del: [], 
+				completed: []
+			},
+			{
+				id: 6, 
+				title: "task 6",
+				start_at: addDays(new Date(), 6),
+				period: 2,
+				del: [], 
+				completed: []
+			},
+			{
+				id: 7, 
+				title: "task 7",
+				start_at: addDays(new Date(), 7),
+				period: 2, 
+				del: [], 
+				completed: []
+			},
 		], 
-		lastId: 3, //change to len
+		len: 3
+	}	
+	
+	validateTime = (time) => {
+		let now = new Date();
+		if(cmpTime(time, now ) >= 0 ) 
+			return time;
+		
+		now = moment(now).hour(moment(time).hour()); 
+		now = moment(now).minute(moment(time).minute());
+		now = moment(now).second(moment(time).second());
+		now = moment(now).millisecond(moment(time).millisecond());
+		return now.toDate();
+		
+	}
+
+	componentDidMount() {
+		const now = new Date;
+		setInterval( () => {
+			this.clean();		
+		}, cmpTime(setToMidnithg( now ), now));
+	}
+
+	clean = () => {
+		console.log("Alarm");
 	}
 
 	addPeriod = () => {
@@ -80,22 +186,39 @@ class App extends Component {
 
 	getItems = () => {
 		let i = -1;
-		return this.state.todos.map( (todo) => {
-			if(!todo.del.includes(todo.start_at)){
-				i++;
-				return (
-					<TodoItem
-						key={i}
-						id={todo.id} 
-						title={todo.title} 
-						time={todo.start_at} 
-						changeComplete={this.changeComplete}
-						delTodo={this.delTodo}
-						completed={todo.completed.includes(todo.start_at)}
-					/>	
-				)
-			}
-		});
+		let ret = [];
+		let titles = ["Today", "Tomorrow"];
+		const now = new Date();
+		for(let j = 2; j < 6; j++) {
+			titles.push(daysOfWeek[addDays(now, j).getDay()] + " " + monthNames[now.getMonth()] + " " + now.getDate());
+		}
+		titles.push("Upcoming");
+
+		for(let j = 0; j < 7; j++) {
+			ret.push(<div className="todoitem-title">{titles[j]}</div>);
+			ret.push(
+				this.state.todos.map( (todo) => {
+					if(
+						!todo.del.includes(todo.start_at) && 
+					 	1 //!(subDays(now, todo.start_at.getDate()).getDate() % todo.period) 
+						){
+						i++;
+						return (
+							<TodoItem
+								key={i}
+								id={todo.id} 
+								title={todo.title} 
+								time={todo.start_at} 
+								changeComplete={this.changeComplete}
+								delTodo={this.delTodo}
+								completed={todo.completed.includes(todo.start_at)}
+							/>	
+						)
+					}
+				})
+			);
+		}
+		return ret;
 	}
 	
 	render() {
