@@ -1,0 +1,28 @@
+.todoitem {
+	background-color: #efefef;
+	padding: 10px;
+	border-bottom: 1px solid #d0d0d0;
+	font-size: 17px;
+}
+
+.checkboxStyle {
+	margin-right: 5px;
+}
+
+.buttonSpanStyle {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 12px;
+	color: white;
+}
+
+.buttonStyle {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	float: right;
+	border-radius: 50%;
+	background-color: #ff0000;
+}
