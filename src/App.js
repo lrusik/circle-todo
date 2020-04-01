@@ -10,11 +10,10 @@ function cmpTime(start, end) {
 
 function setToMidnithg(date) {
 	let retDate = moment(date).date(moment(date).date() + 1);
-	retDate = moment(retDate).hour(0); 
-	retDate = moment(retDate).minute(0);
-	retDate = moment(retDate).second(0);
-	retDate = moment(retDate).millisecond(0); 
-	//return moment(date).add(10, 's').toDate();
+	retDate = retDate.hour(0); 
+	retDate = retDate.minute(0);
+	retDate = retDate.second(0);
+	retDate = retDate.millisecond(0);
 	return retDate.toDate();
 }
 
@@ -22,9 +21,20 @@ function addDays(date, days) {
 	return moment(date).add(days, 'd').toDate();
 }
 
-function subDays(date, days) {
-	return moment(date).subtract(days, 'd').toDate();
+function compareDays(date1, date2) {
+	let retDate1 = moment(date1);
+	retDate1 = retDate1.hour(0); 
+	retDate1 = retDate1.minute(0);
+	retDate1 = retDate1.second(0);
+	retDate1 = retDate1.millisecond(0);
+	let retDate2 = moment(date2);
+	retDate2 = retDate2.hour(0); 
+	retDate2 = retDate2.minute(0);
+	retDate2 = retDate2.second(0);
+	retDate2 = retDate2.millisecond(0);
+	return retDate1 - retDate2
 }
+
 
 const daysOfWeek = [
 	"Sun",
@@ -119,7 +129,8 @@ class App extends Component {
 				completed: []
 			},
 		], 
-		len: 3
+		len: 3,
+		prevTasks: {}
 	}	
 	
 	validateTime = (time) => {
@@ -190,28 +201,38 @@ class App extends Component {
 		let titles = ["Today", "Tomorrow"];
 		const now = new Date();
 		for(let j = 2; j < 6; j++) {
-			titles.push(daysOfWeek[addDays(now, j).getDay()] + " " + monthNames[now.getMonth()] + " " + now.getDate());
+			let cur = addDays(now, j);
+			titles.push(daysOfWeek[cur.getDay()] + " " + monthNames[cur.getMonth()] + " " + cur.getDate());
 		}
 		titles.push("Upcoming");
 
-		for(let j = 0; j < 7; j++) {
+		for(let j = 0; j < 6; j++) {
+			let jezt = addDays(now, j  );
+
 			ret.push(<div className="todoitem-title">{titles[j]}</div>);
 			ret.push(
 				this.state.todos.map( (todo) => {
-					if(
-						!todo.del.includes(todo.start_at) && 
-					 	1 //!(subDays(now, todo.start_at.getDate()).getDate() % todo.period) 
-						){
+					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
+					
+					if(this.state.prevTasks[todo.title] && !j) {
+						return ;
+					} else if(j === 6) {
+						return ;
+					} else if(
+						(!todo.del.includes(todo.start_at)) && 
+						(!(difference % todo.period)) &&
+						(compareDays(jezt, todo.start_at) >= 0)
+					){
 						i++;
 						return (
 							<TodoItem
 								key={i}
 								id={todo.id} 
 								title={todo.title} 
-								time={todo.start_at} 
+								time={addDays(todo.start_at, j)} 
 								changeComplete={this.changeComplete}
 								delTodo={this.delTodo}
-								completed={todo.completed.includes(todo.start_at)}
+								completed={todo.completed.includes(addDays(todo.start_at, j))}
 							/>	
 						)
 					}
