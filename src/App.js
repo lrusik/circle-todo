@@ -14,11 +14,11 @@ function setToMidnithg(date) {
 	retDate = retDate.minute(0);
 	retDate = retDate.second(0);
 	retDate = retDate.millisecond(0);
-	return retDate.toDate();
+	return retDate;
 }
 
 function addDays(date, days) {
-	return moment(date).add(days, 'd').toDate();
+	return moment(date).add(days, 'd');
 }
 
 function compareDays(date1, date2) {
@@ -35,47 +35,30 @@ function compareDays(date1, date2) {
 	return retDate1 - retDate2
 }
 
-
-const daysOfWeek = [
-	"Sun",
-	"Mon",
-	"Tue",
-	"Wed",
-	"Thu",
-	"Fri",
-	"Sat"
-];
-
-const monthNames = [
-	"January", 
-	"February", 
-	"March", 
-	"April", 
-	"May", 
-	"June",
-	"July", 
-	"August", 
-	"September", 
-	"October", 
-	"November", 
-	"December"
-];
+function showTest() {
+	//console.log(time, moment(time).format('MMMM'), moment(time).format('ddd'));
+}
 
 class App extends Component {
+	constructor(props) {
+		super(props);
+		showTest();
+	}
+
 	state = {
 		todos: [
 			{
 				id: 0, 
 				title: "task 0",
-				start_at: addDays(new Date(), 0),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 0),
 				period: 1,
-				del: [], 
+				del: [],
 				completed: []
 			},
 			{
 				id: 1, 
 				title: "task 1",
-				start_at: addDays(new Date(), 1),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 1),
 				period: 2,
 				del: [], 
 				completed: []
@@ -83,7 +66,7 @@ class App extends Component {
 			{
 				id: 2, 
 				title: "task 2",
-				start_at: addDays(new Date(), 2),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 2),
 				period: 2, 
 				del: [], 
 				completed: []
@@ -91,7 +74,7 @@ class App extends Component {
 			{
 				id: 3, 
 				title: "task 3",
-				start_at: addDays(new Date(), 3),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 3),
 				period: 1,
 				del: [], 
 				completed: []
@@ -99,7 +82,7 @@ class App extends Component {
 			{
 				id: 4, 
 				title: "task 4",
-				start_at: addDays(new Date(), 4),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 4),
 				period: 2,
 				del: [], 
 				completed: []
@@ -107,7 +90,7 @@ class App extends Component {
 			{
 				id: 5, 
 				title: "task 5",
-				start_at: addDays(new Date(), 5),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 5),
 				period: 2, 
 				del: [], 
 				completed: []
@@ -115,7 +98,7 @@ class App extends Component {
 			{
 				id: 6, 
 				title: "task 6",
-				start_at: addDays(new Date(), 6),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 6),
 				period: 2,
 				del: [], 
 				completed: []
@@ -123,7 +106,7 @@ class App extends Component {
 			{
 				id: 7, 
 				title: "task 7",
-				start_at: addDays(new Date(), 7),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 7),
 				period: 2, 
 				del: [], 
 				completed: []
@@ -134,7 +117,7 @@ class App extends Component {
 	}	
 	
 	validateTime = (time) => {
-		let now = new Date();
+		let now = new moment().format("YYYY-MM-DD HH:mm:ss");
 		if(cmpTime(time, now ) >= 0 ) 
 			return time;
 		
@@ -142,14 +125,14 @@ class App extends Component {
 		now = moment(now).minute(moment(time).minute());
 		now = moment(now).second(moment(time).second());
 		now = moment(now).millisecond(moment(time).millisecond());
-		return now.toDate();
+		return now;
 		
 	}
 
 	componentDidMount() {
-		const now = new Date;
+		const now = new moment().format("YYYY-MM-DD HH:mm:ss");
 		setInterval( () => {
-			this.clean();		
+			//this.clean();		
 		}, cmpTime(setToMidnithg( now ), now));
 	}
 
@@ -195,14 +178,35 @@ class App extends Component {
 		this.setState( { todos: this.setCompleted(id, time) } );
 	}
 
+	isInTimeArray = (array, time) => {
+		let BreakException = {"name": "BreakException", "ret": false};
+		
+		try {
+			array.forEach(function(el) {
+				if (el.isSame(time)){ 
+					BreakException.ret = true;
+					throw BreakException.name;
+				}
+			});
+		} catch (e) {
+			if (e !== BreakException.name) throw e;
+		}
+
+		return BreakException.ret;
+	}
+
+	isComplete = (id, time) => {
+		return this.isInTimeArray(this.state.todos[id].completed, time);
+	}
+
 	getItems = () => {
 		let i = -1;
 		let ret = [];
 		let titles = ["Today", "Tomorrow"];
-		const now = new Date();
+		const now = new moment().format("YYYY-MM-DD HH:mm:ss");
 		for(let j = 2; j < 6; j++) {
 			let cur = addDays(now, j);
-			titles.push(daysOfWeek[cur.getDay()] + " " + monthNames[cur.getMonth()] + " " + cur.getDate());
+			titles.push(moment(cur).format("ddd") + " " + moment(cur).format("MMMM") + " " + cur.date());
 		}
 		titles.push("Upcoming");
 
@@ -224,6 +228,7 @@ class App extends Component {
 						(compareDays(jezt, todo.start_at) >= 0)
 					){
 						i++;
+
 						return (
 							<TodoItem
 								key={i}
@@ -232,7 +237,7 @@ class App extends Component {
 								time={addDays(todo.start_at, j)} 
 								changeComplete={this.changeComplete}
 								delTodo={this.delTodo}
-								completed={todo.completed.includes(addDays(todo.start_at, j))}
+								completed={this.isComplete(todo.id, addDays(todo.start_at, j))}
 							/>	
 						)
 					}
