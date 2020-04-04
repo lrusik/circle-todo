@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import  moment  from "moment";
 import "./todoitem.css";
 
 class todoItem extends Component {
@@ -24,7 +25,7 @@ class todoItem extends Component {
 	
 	render() {
 		return (
-			<div className="todoitem" style={ this.getItemStyle() }>
+			<div className="todoitem" style={ this.getItemStyle() } title={moment(this.props.time).format("YYYY-MM-DD HH:mm:ss")}>
 				<p>
 					<label>
 						<input 

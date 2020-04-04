@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TodoItem from "./components/TodoItem";
 import Header from "./components/layouts/Header";
 //import AddTodo from "./components/layouts/AddTodo";
+import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
 function cmpTime(start, end) {
@@ -21,6 +22,10 @@ function addDays(date, days) {
 	return moment(date).add(days, 'd');
 }
 
+function subDays(date, days) {
+	return moment(date).subtract(days, 'days');
+}
+
 function compareDays(date1, date2) {
 	let retDate1 = moment(date1);
 	retDate1 = retDate1.hour(0); 
@@ -36,13 +41,14 @@ function compareDays(date1, date2) {
 }
 
 function showTest() {
-	//console.log(time, moment(time).format('MMMM'), moment(time).format('ddd'));
+	console.log(new moment().format("YYYY-MM-DD HH:mm:ss"));
+	console.log();
 }
 
 class App extends Component {
 	constructor(props) {
 		super(props);
-		showTest();
+		//showTest();
 	}
 
 	state = {
@@ -111,9 +117,22 @@ class App extends Component {
 				del: [], 
 				completed: []
 			},
+			{
+				id: 8, 
+				title: "Not finished yet",
+				start_at: new moment().format("YYYY-MM-DD HH:mm:ss"),
+				period: 1,
+				del: [],
+				completed: []
+			},
 		], 
-		len: 3,
-		prevTasks: {}
+		prevTasks: [
+			{
+				id: 8,
+				time: subDays(new moment(), 1).format("YYYY-MM-DD HH:mm:ss"),
+			}
+		],
+		length: 8
 	}	
 	
 	validateTime = (time) => {
@@ -130,9 +149,9 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		const now = new moment().format("YYYY-MM-DD HH:mm:ss");
+		let now = new moment().format("YYYY-MM-DD HH:mm:ss");
 		setInterval( () => {
-			//this.clean();		
+			//this.clean();
 		}, cmpTime(setToMidnithg( now ), now));
 	}
 
@@ -161,7 +180,6 @@ class App extends Component {
 
 	delTodo = (id, time) => {
 		this.setState( { todos: this.setDel(id, time) } );
-
 	}
 
 	setCompleted = (id, time) => {
@@ -183,7 +201,7 @@ class App extends Component {
 		
 		try {
 			array.forEach(function(el) {
-				if (el.isSame(time)){ 
+				if (moment(el).isSame(time)){ 
 					BreakException.ret = true;
 					throw BreakException.name;
 				}
@@ -199,9 +217,7 @@ class App extends Component {
 		return this.isInTimeArray(this.state.todos[id].completed, time);
 	}
 
-	getItems = () => {
-		let i = -1;
-		let ret = [];
+	getItemsTitles = () => {
 		let titles = ["Today", "Tomorrow"];
 		const now = new moment().format("YYYY-MM-DD HH:mm:ss");
 		for(let j = 2; j < 6; j++) {
@@ -209,29 +225,61 @@ class App extends Component {
 			titles.push(moment(cur).format("ddd") + " " + moment(cur).format("MMMM") + " " + cur.date());
 		}
 		titles.push("Upcoming");
+		return titles;
+	}
 
+	getNotFinishedTasks = () => {
+		let ret = [];
+		
+		this.state.prevTasks.forEach( (todo) => {
+			console.log(todo.time);
+			ret.push(
+				<TodoItem
+					key={uuidv4()}
+					id={todo.id} 
+					title={this.state.todos[todo.id].title} 
+					time={todo.time} 
+					changeComplete={this.changeComplete}
+					delTodo={this.delTodo}
+					completed={this.isComplete(todo.id, todo.time)}
+				/>	
+			)
+			}	
+		) 
+
+		return ret;
+	}
+
+	getUpcomingItems = () => {
+		//uuidv4()
+		return [];
+	}
+
+	getItems = () => {
+		const titles = this.getItemsTitles();
+		const now = new moment().format("YYYY-MM-DD HH:mm:ss");
+
+		let ret = [<div className="todoitem-title">{titles[0]}</div>];
+		ret = ret.concat(this.getNotFinishedTasks());
+		
 		for(let j = 0; j < 6; j++) {
 			let jezt = addDays(now, j  );
-
-			ret.push(<div className="todoitem-title">{titles[j]}</div>);
+			
+			if(j)
+				ret.push(<div className="todoitem-title">{titles[j]}</div>);
+			
 			ret.push(
 				this.state.todos.map( (todo) => {
 					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
 					
-					if(this.state.prevTasks[todo.title] && !j) {
-						return ;
-					} else if(j === 6) {
-						return ;
-					} else if(
+					if(
 						(!todo.del.includes(todo.start_at)) && 
 						(!(difference % todo.period)) &&
 						(compareDays(jezt, todo.start_at) >= 0)
 					){
-						i++;
-
 						return (
 							<TodoItem
-								key={i}
+								key={uuidv4()}
 								id={todo.id} 
 								title={todo.title} 
 								time={addDays(todo.start_at, j)} 
@@ -244,6 +292,8 @@ class App extends Component {
 				})
 			);
 		}
+
+		ret = ret.concat(this.getUpcomingItems())
 		return ret;
 	}
 	
