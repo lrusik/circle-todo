@@ -130,6 +130,8 @@ class App extends Component {
 			{
 				id: 8,
 				time: subDays(new moment(), 1).format("YYYY-MM-DD HH:mm:ss"),
+				completed: false, 
+				del: false
 			}
 		],
 		length: 8
@@ -167,14 +169,22 @@ class App extends Component {
 
 	}
 
+	getItemIndex = (type, id, time) => {
+		let index = -1;
+		for (let i = 0; i < this.state.todos[id][type].length; i++) {
+			if(moment(time).isSame(this.state.todos[id][type][i]))
+				index = i;
+		}
+		return index;
+	}
+	
 	setDel = (id, time) => {
 		let ret = this.state.todos;
-		const index_complete = ret[id]["completed"].indexOf(time);
+		const index = this.getItemIndex("del", id, time);
 
-		if(index_complete > -1)
-			ret[id]["completed"].splice(index_complete, 1);
-
-		ret[id]["del"] = [...ret[id]["del"], ...[time]]
+		if(index === -1)
+			ret[id]["del"] = [...ret[id]["del"], ...[time]]
+		
 		return ret;
 	}
 
@@ -182,14 +192,9 @@ class App extends Component {
 		this.setState( { todos: this.setDel(id, time) } );
 	}
 
-	
 	setCompleted = (id, time) => {
 		let ret = this.state.todos;
-		let index = -1;
-		for (let i = 0; i < ret[id]["completed"].length; i++) {
-			if(moment(time).isSame(ret[id]["completed"][i]))
-				index = i;
-		}
+		const index = this.getItemIndex("completed", id, time);
 
 		if(index > -1){
 			ret[id]["completed"].splice(index, 1);
@@ -235,22 +240,57 @@ class App extends Component {
 		return titles;
 	}
 
+
+	findNfItem = (id, time) => {
+		for(let i = 0; i < this.state.prevTasks.length; i++)
+			if(this.state.prevTasks[i].id === id && moment(this.state.prevTasks[i].time).isSame(time))
+				return i;
+		console.error("Item not found. id:", id, "time:", moment(time).format("YYYY-MM-DD HH:mm:ss"));
+		return null;
+	}
+
+	setNfComplete = (id, time) => {
+		const index = this.findNfItem(id, time);
+		if(index === null)
+			return ;			
+		
+		let newPrevTasks = this.state.prevTasks;
+		newPrevTasks[index].completed = ~this.state.prevTasks[index].completed;
+
+		this.setState({ prevTasks: newPrevTasks });
+	}
+
+	delNf = (id, time) => {
+		const index = this.findNfItem(id, time);
+		if(index === null)
+			return ;			
+		
+		let newPrevTasks = this.state.prevTasks;
+		newPrevTasks[index].del = ~this.state.prevTasks[index].del;
+
+		this.setState({ prevTasks: newPrevTasks });
+	}
+
 	getNotFinishedTasks = () => {
 		let ret = [];
 		
-		this.state.prevTasks.forEach( (todo) => {
-			ret.push(
-				<TodoItem
-					key={uuidv4()}
-					id={todo.id} 
-					title={this.state.todos[todo.id].title} 
-					time={todo.time} 
-					changeComplete={this.changeComplete}
-					delTodo={this.delTodo}
-					completed={this.isComplete(todo.id, todo.time)}
-				/>	
-			)
-			}	
+		this.state.prevTasks.forEach( (todo) => 
+			{
+				const index = this.findNfItem(todo.id, todo.time)
+				if(index !== null && !this.state.prevTasks[index].del){
+					ret.push(
+						<TodoItem
+							key={uuidv4()}
+							id={todo.id} 
+							title={this.state.todos[todo.id].title} 
+							time={todo.time} 
+							changeComplete={this.setNfComplete}
+							delTodo={this.delNf}
+							completed={this.state.prevTasks[index].completed}
+						/>	
+					)
+				}	
+			}
 		) 
 
 		return ret;
@@ -279,7 +319,7 @@ class App extends Component {
 					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
 					
 					if(
-						(!todo.del.includes(todo.start_at)) && 
+						(this.getItemIndex("del", todo.id, addDays(todo.start_at, j)) === -1) && 
 						(!(difference % todo.period)) &&
 						(compareDays(jezt, todo.start_at) >= 0)
 					){
