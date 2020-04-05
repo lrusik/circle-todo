@@ -182,13 +182,20 @@ class App extends Component {
 		this.setState( { todos: this.setDel(id, time) } );
 	}
 
+	
 	setCompleted = (id, time) => {
 		let ret = this.state.todos;
-		const index = ret[id]["completed"].indexOf(time);
+		let index = -1;
+		for (let i = 0; i < ret[id]["completed"].length; i++) {
+			if(moment(time).isSame(ret[id]["completed"][i]))
+				index = i;
+		}
+
 		if(index > -1){
 			ret[id]["completed"].splice(index, 1);
-		} else
+		} else {
 			ret[id]["completed"] = [...ret[id]["completed"], ...[time]]
+		}
 		return ret;
 	}	
 
@@ -232,7 +239,6 @@ class App extends Component {
 		let ret = [];
 		
 		this.state.prevTasks.forEach( (todo) => {
-			console.log(todo.time);
 			ret.push(
 				<TodoItem
 					key={uuidv4()}
