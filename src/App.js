@@ -5,8 +5,21 @@ import Header from "./components/layouts/Header";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
+// period 0
+
+// design 
+	// add preiod
+	// del period
+	
+// clean function
+
+
 function cmpTime(start, end) {
 	return start - end;
+}
+
+function XOR(a,b) {
+	return ( a || b ) && !( a && b );
 }
 
 function setToMidnithg(date) {
@@ -122,6 +135,14 @@ class App extends Component {
 				title: "Not finished yet",
 				start_at: new moment().format("YYYY-MM-DD HH:mm:ss"),
 				period: 1,
+				del: [],
+				completed: []
+			},
+			{
+				id: 9, 
+				title: "Once",
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 1),
+				period: 0,
 				del: [],
 				completed: []
 			},
@@ -317,11 +338,20 @@ class App extends Component {
 			ret.push(
 				this.state.todos.map( (todo) => {
 					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
-					
+					if(!todo.period)
+						console.log(todo.start_at, jezt, compareDays(jezt, todo.start_at));
 					if(
 						(this.getItemIndex("del", todo.id, addDays(todo.start_at, j)) === -1) && 
-						(!(difference % todo.period)) &&
-						(compareDays(jezt, todo.start_at) >= 0)
+						(
+							(
+								(!todo.period && compareDays(jezt, todo.start_at) < 0 ) // ?? 
+							) ||
+							(	
+								(todo.period) &&
+								(!(difference % todo.period)) &&
+								(compareDays(jezt, todo.start_at) >= 0)		
+							)
+						)
 					){
 						return (
 							<TodoItem
