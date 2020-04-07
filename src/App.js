@@ -5,21 +5,17 @@ import Header from "./components/layouts/Header";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
-// period 0
 
-// design 
-	// add preiod
-	// del period
+
+// upcoming
+// before start
+// ui functionality
 	
 // clean function
 
 
 function cmpTime(start, end) {
 	return start - end;
-}
-
-function XOR(a,b) {
-	return ( a || b ) && !( a && b );
 }
 
 function setToMidnithg(date) {
@@ -63,13 +59,13 @@ class App extends Component {
 		super(props);
 		//showTest();
 	}
-
+	
 	state = {
 		todos: [
 			{
 				id: 0, 
 				title: "task 0",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 0),
+				start_at: addDays(new moment(), 0).format("YYYY-MM-DD HH:mm:ss"),
 				period: 1,
 				del: [],
 				completed: []
@@ -141,7 +137,7 @@ class App extends Component {
 			{
 				id: 9, 
 				title: "Once",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 1),
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 0),
 				period: 0,
 				del: [],
 				completed: []
@@ -155,9 +151,22 @@ class App extends Component {
 				del: false
 			}
 		],
-		length: 8
+		mode: 0,
+		shift: 0, 
+		name: "Ruslan",
+		modify: {
+			status: "none",
+			title: "",
+			time: "",
+			period: 0
+		},
+		length: 9
 	}	
 	
+	changeMode = (name) => {
+		
+	}
+
 	validateTime = (time) => {
 		let now = new moment().format("YYYY-MM-DD HH:mm:ss");
 		if(cmpTime(time, now ) >= 0 ) 
@@ -344,7 +353,7 @@ class App extends Component {
 						(this.getItemIndex("del", todo.id, addDays(todo.start_at, j)) === -1) && 
 						(
 							(
-								(!todo.period && compareDays(jezt, todo.start_at) < 0 ) // ?? 
+								(!todo.period && !compareDays(jezt, todo.start_at) )  
 							) ||
 							(	
 								(todo.period) &&
@@ -375,18 +384,22 @@ class App extends Component {
 	
 	render() {
 		return (
-			<React.Fragment>	
+			<div className="app">	
 				<Header 
 					addPeriod={this.addPeriod} 
-					delPeriod={this.delPeriod}
+					changeMode={this.changeMode}	
+					modify={this.state.modify.status}
+					modify_title={this.state.modify.title}
+					modify_period={this.state.modify.period}
+					modify_date={this.state.modify.time}
+					name={this.state.name}
+					shift={this.state.shift}
 				/>
 
 				<div className="container">
-					<div className="containerS">
-						{this.getItems()}
-					</div>	
-				</div>
-			</React.Fragment>
+					{this.getItems()}
+				</div>	
+			</div>
 		);
 	}
 }
