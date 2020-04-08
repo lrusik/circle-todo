@@ -18,9 +18,9 @@ function Header(props) {
 											<input className="standart__input standart__titleinp" type="text"/>
 										</label>
 									</div>
-
+								
 									<div className="standart__item">
-										<label forHtml="period" className="standart__period">
+										<label htmlFor="period" className="standart__period">
 											<div className="standart__name">Period</div>
 										</label>
 										<div className="standart__flex">
@@ -56,7 +56,7 @@ function Header(props) {
 										</label>
 									</div>
 									<div className="standart__item">
-										<label forHtml="period" className="standart__period">
+										<label htmlFor="period" className="standart__period">
 											<div className="standart__name">Period</div>
 										</label>
 
@@ -95,7 +95,7 @@ function Header(props) {
 									</div>
 									<div className="standart__line"></div>
 									<div className="standart__item">
-										<label forHtml="period" className="standart__period">
+										<label htmlFor="period" className="standart__period">
 											<div className="standart__name">Something</div>	
 										</label>
 

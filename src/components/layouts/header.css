@@ -63,6 +63,7 @@
 	background-color: #3266a8;
 	left: 10px;
 	z-index: 10;
+	display: none;
 }
 
 .standart__item {

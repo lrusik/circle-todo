@@ -6,13 +6,16 @@ import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
 
-
 // upcoming
 // before start
 // ui functionality
-	
+// completed null functionality
+
 // clean function
 
+// backend
+// authentication
+ 
 
 function cmpTime(start, end) {
 	return start - end;
@@ -142,6 +145,14 @@ class App extends Component {
 				del: [],
 				completed: []
 			},
+			{
+				id: 10, 
+				title: "Twice",
+				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 6),
+				period: 0,
+				del: [],
+				completed: []
+			},
 		], 
 		prevTasks: [
 			{
@@ -160,6 +171,7 @@ class App extends Component {
 			time: "",
 			period: 0
 		},
+		opend: Array(5).fill(null),
 		length: 9
 	}	
 	
@@ -326,9 +338,32 @@ class App extends Component {
 		return ret;
 	}
 
+	zeroFunction = (a, b) =>  {
+		return;
+	}
+
 	getUpcomingItems = () => {
-		//uuidv4()
-		return [];
+		let ret = [];
+		
+		this.state.todos.forEach( (todo) => 
+			{
+				if(todo.period || ( (todo.start_at - addDays(new moment(), 5)) >= 0  ) ){
+					ret.push(
+						<TodoItem
+							key={uuidv4()}
+							id={todo.id} 
+							title={this.state.todos[todo.id].title} 
+							completed={null}
+							delTodo={this.zeroFunction}
+							changeComplete={this.zeroFunction}
+							time={todo.time} 
+						/>	
+					)
+				}	
+			}
+		) 
+
+		return ret;
 	}
 
 	getItems = () => {
@@ -347,8 +382,6 @@ class App extends Component {
 			ret.push(
 				this.state.todos.map( (todo) => {
 					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
-					if(!todo.period)
-						console.log(todo.start_at, jezt, compareDays(jezt, todo.start_at));
 					if(
 						(this.getItemIndex("del", todo.id, addDays(todo.start_at, j)) === -1) && 
 						(
@@ -378,6 +411,8 @@ class App extends Component {
 			);
 		}
 
+		console.log("WHere the fuck?");
+		ret.push(<div className="todoitem-title">Upcoming</div>);
 		ret = ret.concat(this.getUpcomingItems())
 		return ret;
 	}
