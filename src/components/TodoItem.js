@@ -17,15 +17,25 @@ class todoItem extends Component {
 		this.props.changeComplete(this.props.id, this.props.time)
 	}
 
-	getItemStyle = () => {
+	getCompletetyle = () => {
 		return {
 			textDecoration: this.props.completed ? "line-through" : "none"
 		};
 	}
 	
+	getButtonStyle = () => {
+		return {
+			display: (this.props.completed !== null) ? "block" : "none"
+		};
+	}
+
+	getTime = () => {
+		return (this.props.completed !== null) ? moment(this.props.time).format("YYYY-MM-DD HH:mm:ss") : ""; 
+	}
+
 	render() {
 		return (
-			<div className="todoitem" style={ this.getItemStyle() } title={moment(this.props.time).format("YYYY-MM-DD HH:mm:ss")}>
+			<div className="todoitem" style={ this.getCompletetyle() } title={this.getTime()}>
 				<p>
 					<label>
 						<input 
@@ -35,7 +45,7 @@ class todoItem extends Component {
 						/> 
 						{ this.props.title }
 					</label>
-					<button onClick={ this.delTodo } className="buttonStyle">
+					<button style={this.getButtonStyle()} onClick={ this.delTodo } className="buttonStyle">
 						<span className="buttonSpanStyle">X</span>
 					</button>
 					

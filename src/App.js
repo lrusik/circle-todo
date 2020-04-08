@@ -1,21 +1,27 @@
 import React, { Component } from 'react';
 import TodoItem from "./components/TodoItem";
 import Header from "./components/layouts/Header";
-//import AddTodo from "./components/layouts/AddTodo";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
-
-// upcoming
-// before start
 // ui functionality
-// completed null functionality
+// delete p 
+// add p
 
 // clean function
 
 // backend
 // authentication
- 
+
+/* -------------------- unnecessary ---------------------- */
+// edit task 
+// responsive 
+// the ability to close and open tabs
+// styling
+// drag and drop
+// dates near title
+// readme
+
 
 function cmpTime(start, end) {
 	return start - end;
@@ -150,6 +156,14 @@ class App extends Component {
 				title: "Twice",
 				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 6),
 				period: 0,
+				del: [],
+				completed: []
+			},
+			{
+				id: 11, 
+				title: "Hui",
+				start_at: subDays(new moment(), 1).format("YYYY-MM-DD HH:mm:ss"),
+				period: 3,
 				del: [],
 				completed: []
 			},
