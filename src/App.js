@@ -181,12 +181,12 @@ class App extends Component {
 		name: "Ruslan",
 		modify: {
 			status: "none",
-			title: "",
-			time: "",
-			period: 0
+			title: "Some",
+			time: new moment("2014-02-27 10:00:00", "YYYY-MM-DD HH:mm:ss").toDate(),
+			period: 1
 		},
 		opend: Array(5).fill(null),
-		length: 9
+		length: 11
 	}	
 	
 	changeMode = (name) => {
@@ -217,8 +217,8 @@ class App extends Component {
 		console.log("Alarm");
 	}
 
-	addPeriod = () => {
-
+	addPeriod = (title, period, time) => {
+		console.log(new moment());
 	}
 
 	delPeriod = (id) => {
@@ -425,7 +425,6 @@ class App extends Component {
 			);
 		}
 
-		console.log("WHere the fuck?");
 		ret.push(<div className="todoitem-title">Upcoming</div>);
 		ret = ret.concat(this.getUpcomingItems())
 		return ret;
@@ -439,8 +438,8 @@ class App extends Component {
 					changeMode={this.changeMode}	
 					modify={this.state.modify.status}
 					modify_title={this.state.modify.title}
-					modify_period={this.state.modify.period}
 					modify_date={this.state.modify.time}
+					modify_period={this.state.modify.period}
 					name={this.state.name}
 					shift={this.state.shift}
 				/>

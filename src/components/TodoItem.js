@@ -48,7 +48,6 @@ class todoItem extends Component {
 					<button style={this.getButtonStyle()} onClick={ this.delTodo } className="buttonStyle">
 						<span className="buttonSpanStyle">X</span>
 					</button>
-					
 				</p>
 			</div>
 		);

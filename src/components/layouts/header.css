@@ -37,7 +37,7 @@
 
 .standart__opt {
 	border: 1px solid #3266a8;
-	padding: 5px 20px ;
+	padding: 10px 20px ;
 	font-size: 20px;
 	font-weight: 500;
 	cursor: pointer;
@@ -117,7 +117,7 @@
 }
 
 .greeting {
-	padding: 5px;
+	padding: 10px 20px;
 	font-size: 20px;
 }
 
@@ -128,6 +128,9 @@
 	height: 18px;
 	
 	position: relative;
+	user-select: none;
+	margin-left: 10px;
+	margin-right: -3px;
 }
 
 .standart__minus {
@@ -136,8 +139,15 @@
 	width: 20px;
 	height: 18px;
 	position: relative;
+	user-select: none;
+	margin-left: 10px;
+	margin-right: -3px;
 }
 
+
+.standart__periodinp {
+	margin-left: -1px;
+}
 
 .standart__plus:before,
 .standart__plus:after,
@@ -161,4 +171,8 @@
 .standart__minus:after {
 	width: 10px;
 	height: 1px;
+}
+
+.modify .standart__options {
+	display: block;
 }
