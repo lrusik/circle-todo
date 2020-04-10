@@ -35,13 +35,13 @@ class todoItem extends Component {
 
 	render() {
 		return (
-			<div className="todoitem" style={ this.getCompletetyle() } title={this.getTime()}>
+			<div className={"todoitem " + this.props.addClass} style={ this.getCompletetyle() } title={this.getTime()} onClick={ this.changeComplete }>
 				<p>
 					<label>
 						<input 
 							className="checkboxStyle" 
 							type="checkbox" {...(this.props.completed ? {checked:"checked"} : {})} 
-							onChange={ this.changeComplete } 
+							 
 						/> 
 						{ this.props.title }
 					</label>

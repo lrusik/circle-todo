@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import "./header.css";
-import Timekeeper from 'react-timekeeper';
 import TimeField from 'react-simple-timefield';
 
 import moment from "moment";
+
+// close all tabs on click not in tab
+// check if field empty
 
 class Header extends Component {
 	constructor(props) {
@@ -28,6 +30,16 @@ class Header extends Component {
 			field.style.display = "block";
 		} else {
 			field.style.display = "none";
+		}
+	}
+	delete = (e) => {
+		this.props.changeMode.bind(this, 1);
+		if(e.target.style.background === ""){
+			e.target.style.background = "#3266c8";
+			this.props.changeMode(1);
+		} else {
+			e.target.style.background = "";
+			this.props.changeMode(0);
 		}
 	}
 
@@ -178,7 +190,7 @@ class Header extends Component {
 								</div>
 							</div>
 							<div className="headerNav__delete headerNav__field"> 
-								<div onClick={this.mark} className="standart__opt">Delete period</div>	
+								<div onClick={this.delete} className="standart__opt">Delete period</div>	
 							</div>
 						</div>
 

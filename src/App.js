@@ -4,8 +4,7 @@ import Header from "./components/layouts/Header";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
-// delete p 
-// add p
+// delete p  
 
 // clean function
 
@@ -159,7 +158,9 @@ class App extends Component {
 		], 
 		prevTasks: [
 			{
-				id: 8,
+				id: 12,
+				title: "Not finished yet",
+				parent: 8, 
 				time: subDays(new moment(), 1).format("YYYY-MM-DD HH:mm:ss"),
 				completed: false, 
 				del: false
@@ -170,15 +171,22 @@ class App extends Component {
 		name: "Ruslan",
 		modify: {
 			status: "none",
-			title: "Some",
-			time: new moment("2014-02-27 10:00:00", "YYYY-MM-DD HH:mm:ss").toDate(),
-			period: 1
+			title: "",
+			time: "",
+			period: null
 		},
-		opend: Array(5).fill(null)
+		length: 55
 	}	
 	
-	changeMode = (name) => {
-		
+	changeMode = (mode_num) => {
+		/*
+			* available modes 
+			* * default any number
+			* * delete 1  
+			* * modify 2
+		*/
+
+		this.setState( { mode: parseInt(mode_num, 10) } );
 	}
 
 	validateTime = (time) => {
@@ -207,42 +215,79 @@ class App extends Component {
 
 	addPeriod = (title, period, time) => {
 		time = moment(moment(time, "YYYY-MM-DD HH:mm:ss").toDate());
-		for(let i = 0; i < this.state.todos.length; i++) {
-			if(title === this.state.todos[i].title){
-				console.log("Task already exists");
-				return 0;
-			} 
+		try { 
+			this.setState( { todos: [ ...this.state.todos, ...[{
+				id: this.state.length + 1, 
+				title: title,
+				start_at: time,
+				period: parseInt(period, 10),
+				del: [],
+				completed: []
+			}] ]});
 		}
+		catch(err) {
+			console.log(err);
+			return 0;
+		}
+		this.setState( {length: this.state.length + 1} );
+	}
+
+	delPeriod = (id, zero) => {
+		const index = this.getItemIndex(id);
+		zero = zero;
+
+		if(index === -1)
+			return;
 		
-		this.setState( { todos: [ ...this.state.todos, ...[{
-			id: this.state.todos.length, 
-			title: title,
-			start_at: time,
-			period: parseInt(period, 10),
-			del: [],
-			completed: []
-		}] ]});
+		let newTodos = this.state.todos;
+		newTodos.splice(index, 1);
+		let newPrevTasks = this.state.prevTasks.filter((item) => {
+			if(item.parent !== id){
+				return item;
+			}
+		});
+		
+		this.setState({ prevTasks: newPrevTasks });
+		this.setState({todos: newTodos});
 	}
 
-	delPeriod = (id) => {
-
-	}
-
-	getItemIndex = (type, id, time) => {
+	getItemIndex = (id) => {
 		let index = -1;
-		for (let i = 0; i < this.state.todos[id][type].length; i++) {
-			if(moment(time).isSame(this.state.todos[id][type][i]))
+		for(let i = 0; i < this.state.todos.length; i++)
+			if(this.state.todos[i].id === id) {
+				index = i;
+				break;
+			}
+		return index;
+	}
+	
+	
+	findIfInOpts = (type, id, time) => {
+		let index = -1;
+		let pos = this.getItemIndex(id);
+		for (let i = 0; i < this.state.todos[pos][type].length; i++) {
+			if(moment(time).isSame(this.state.todos[pos][type][i]))
 				index = i;
 		}
 		return index;
 	}
 	
+	checkIfInOpts = (type, pos, time) => {
+		let index = -1;
+		for (let i = 0; i < this.state.todos[pos][type].length; i++) {
+			if(moment(time).isSame(this.state.todos[pos][type][i]))
+				index = i;
+		}
+		return index;
+	}
+
 	setDel = (id, time) => {
 		let ret = this.state.todos;
-		const index = this.getItemIndex("del", id, time);
+		const pos = this.getItemIndex(id);
+		const index = this.checkIfInOpts("del", pos, time);
 
 		if(index === -1)
-			ret[id]["del"] = [...ret[id]["del"], ...[time]]
+			ret[pos]["del"] = [...ret[pos]["del"], ...[time]]
 		
 		return ret;
 	}
@@ -253,12 +298,13 @@ class App extends Component {
 
 	setCompleted = (id, time) => {
 		let ret = this.state.todos;
-		const index = this.getItemIndex("completed", id, time);
+		const pos = this.getItemIndex(id);
+		const index = this.checkIfInOpts("completed", pos, time);
 
 		if(index > -1){
-			ret[id]["completed"].splice(index, 1);
+			ret[pos]["completed"].splice(index, 1);
 		} else {
-			ret[id]["completed"] = [...ret[id]["completed"], ...[time]]
+			ret[pos]["completed"] = [...ret[pos]["completed"], ...[time]]
 		}
 		return ret;
 	}	
@@ -285,7 +331,7 @@ class App extends Component {
 	}
 
 	isComplete = (id, time) => {
-		return this.isInTimeArray(this.state.todos[id].completed, time);
+		return this.isInTimeArray(this.state.todos[this.getItemIndex(id)].completed, time);
 	}
 
 	getItemsTitles = () => {
@@ -322,7 +368,8 @@ class App extends Component {
 	delNf = (id, time) => {
 		const index = this.findNfItem(id, time);
 		if(index === null)
-			return ;			
+			return ;
+			
 		
 		let newPrevTasks = this.state.prevTasks;
 		newPrevTasks[index].del = ~this.state.prevTasks[index].del;
@@ -332,7 +379,6 @@ class App extends Component {
 
 	getNotFinishedTasks = () => {
 		let ret = [];
-		
 		this.state.prevTasks.forEach( (todo) => 
 			{
 				const index = this.findNfItem(todo.id, todo.time)
@@ -341,7 +387,7 @@ class App extends Component {
 						<TodoItem
 							key={uuidv4()}
 							id={todo.id} 
-							title={this.state.todos[todo.id].title} 
+							title={todo.title} 
 							time={todo.time} 
 							changeComplete={this.setNfComplete}
 							delTodo={this.delNf}
@@ -369,7 +415,7 @@ class App extends Component {
 						<TodoItem
 							key={uuidv4()}
 							id={todo.id} 
-							title={this.state.todos[todo.id].title} 
+							title={todo.title} 
 							completed={null}
 							delTodo={this.zeroFunction}
 							changeComplete={this.zeroFunction}
@@ -400,7 +446,7 @@ class App extends Component {
 				this.state.todos.map( (todo) => {
 					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
 					if(
-						(this.getItemIndex("del", todo.id, addDays(todo.start_at, j)) === -1) && 
+						(this.findIfInOpts("del", todo.id, addDays(todo.start_at, j)) === -1) && 
 						(
 							(
 								(!todo.period && !compareDays(jezt, todo.start_at) )  
@@ -431,8 +477,39 @@ class App extends Component {
 		ret.push(<div className="todoitem-title">Upcoming</div>);
 		ret = ret.concat(this.getUpcomingItems())
 		return ret;
+	}	
+
+	getTodosList = (callback) => {
+		let ret = [];
+		for (let todo of Array.from(this.state.todos).reverse()) {
+			ret.push(
+				<TodoItem
+					key={uuidv4()}
+					id={todo.id} 
+					title={todo.title} 
+					time={""} 
+					changeComplete={callback}
+					delTodo={this.delTodo}
+					completed={null}
+					addClass="animate"
+				/>	
+			)
+		}
+
+		return ret;
 	}
-	
+
+	selector = (mode) => {
+		switch(mode) {
+			case 1:
+				return this.getTodosList(this.delPeriod);
+			case 2: 
+				return "modify";
+			default: 
+				return this.getItems();
+		}
+	}
+
 	render() {
 		console.log(this.state.todos);
 		return (
@@ -445,11 +522,14 @@ class App extends Component {
 					modify_date={this.state.modify.time}
 					modify_period={this.state.modify.period}
 					name={this.state.name}
+					mode={this.state.mode}
 					shift={this.state.shift}
 				/>
 
 				<div className="container">
-					{this.getItems()}
+					{
+						this.selector(this.state.mode)
+					}
 				</div>	
 			</div>
 		);

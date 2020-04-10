@@ -1,8 +1,11 @@
 .todoitem {
-	background-color: #efefef;
 	padding: 10px;
 	border-bottom: 1px solid #d0d0d0;
 	font-size: 17px;
+}
+
+.animate {
+	animation: shake 1s infinite;
 }
 
 .checkboxStyle {
@@ -25,4 +28,18 @@
 	float: right;
 	border-radius: 50%;
 	background-color: #ff0000;
+}
+
+@keyframes shake {
+	0%   { padding: 10px 11px; }
+	10%  { padding: 10px 10px;  }
+	20%  { padding: 10px 11px; }
+	30%  { padding: 10px 10px; }
+	40%  { padding: 10px 11px; }
+	50%  { padding: 10px 10px; }
+	60%  { padding: 10px 11px; }
+	70%  { padding: 10px 10px; }
+	80%  { padding: 10px 11px; }
+	90%  { padding: 10px 10xp; }
+	100% { padding: 10px 11px; }
 }
