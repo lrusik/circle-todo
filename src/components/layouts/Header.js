@@ -40,14 +40,21 @@ class Header extends Component {
 	}
 
 	addPeriod = (e) => {
-		const inputs = e.target.parentElement.querySelectorAll(".standart__input");
-		this.props.addPeriod.bind(this, inputs[0].value, inputs[1].value, (inputs[2].value + " " + inputs[3].value) );
-		this.props.addPeriod(inputs[0].value, inputs[1].value, inputs[2].value);
+		const inputs = e.target.parentElement.querySelectorAll("input");
+		this.props.addPeriod.bind(this, inputs[0].value, inputs[1].value, (inputs[3].value + " " + inputs[2].value) );
+		this.props.addPeriod(inputs[0].value, inputs[1].value, (inputs[3].value + " " + inputs[2].value) );
 	}
 
-	onChnage = (e) => {
+	onChange = (e) => {
 		this.setState({
-			[e.target.name]: e.target.value 
+			[e.target.getAttribute('data-name')]: e.target.value 
+		});
+	}
+
+	onChangeInt = (e) => {
+		const newValue = parseInt(e.target.value, 10);
+		this.setState({
+			[e.target.getAttribute('data-name')]: (isNaN(newValue)) ? "" : newValue 
 		});
 	}
 
@@ -100,7 +107,7 @@ class Header extends Component {
 												<div className="standart__name">Period</div>
 											</label>
 											<div className="standart__flex">
-												<input name="period" date-name="counter" onChange={this.onChnage} className="standart__input standart__periodinp" type="text" value={this.state.counter} />
+												<input name="period" data-name="counter" onChange={this.onChangeInt} className="standart__input standart__periodinp" type="text" value={this.state.counter} />
 												
 												<div className="standart__arrows">
 													<div data-name="counter" className="standart__plus" onClick={this.incCounter}><div></div></div>
@@ -118,7 +125,7 @@ class Header extends Component {
 											<label className="standart__date">
 												<div className="standart__name">Date</div>
 												
-												<input onChange={this.onChnage} type="date" name="date1" className="standart__input standart__dateinp" value={this.state.date1} />
+												<input onChange={this.onChange} type="date" name="date1" className="standart__input standart__dateinp" value={this.state.date1} />
 
 											</label>
 										</div>
@@ -147,7 +154,7 @@ class Header extends Component {
 											</label>
 
 											<div className="standart__flex">
-												<input date-name="modify_period" name="period" className="standart__input standart__periodinp" type="text" value={this.state.modify_period} />
+												<input data-name="modify_period" name="period" className="standart__input standart__periodinp" type="text" onChange={this.onChangeInt} value={this.state.modify_period} />
 												<div className="standart__arrows">
 													<div data-name="modify_period" className="standart__plus" onClick={this.incCounter}><div></div></div>
 													<div data-name="modify_period" className="standart__minus" onClick={this.decCounter}><div></div></div>

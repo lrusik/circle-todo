@@ -4,7 +4,6 @@ import Header from "./components/layouts/Header";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
-// ui functionality
 // delete p 
 // add p
 
@@ -58,17 +57,7 @@ function compareDays(date1, date2) {
 	return retDate1 - retDate2
 }
 
-function showTest() {
-	console.log(new moment().format("YYYY-MM-DD HH:mm:ss"));
-	console.log();
-}
-
 class App extends Component {
-	constructor(props) {
-		super(props);
-		//showTest();
-	}
-	
 	state = {
 		todos: [
 			{
@@ -185,8 +174,7 @@ class App extends Component {
 			time: new moment("2014-02-27 10:00:00", "YYYY-MM-DD HH:mm:ss").toDate(),
 			period: 1
 		},
-		opend: Array(5).fill(null),
-		length: 11
+		opend: Array(5).fill(null)
 	}	
 	
 	changeMode = (name) => {
@@ -218,7 +206,22 @@ class App extends Component {
 	}
 
 	addPeriod = (title, period, time) => {
-		console.log(new moment());
+		time = moment(moment(time, "YYYY-MM-DD HH:mm:ss").toDate());
+		for(let i = 0; i < this.state.todos.length; i++) {
+			if(title === this.state.todos[i].title){
+				console.log("Task already exists");
+				return 0;
+			} 
+		}
+		
+		this.setState( { todos: [ ...this.state.todos, ...[{
+			id: this.state.todos.length, 
+			title: title,
+			start_at: time,
+			period: parseInt(period, 10),
+			del: [],
+			completed: []
+		}] ]});
 	}
 
 	delPeriod = (id) => {
@@ -431,6 +434,7 @@ class App extends Component {
 	}
 	
 	render() {
+		console.log(this.state.todos);
 		return (
 			<div className="app">	
 				<Header 
