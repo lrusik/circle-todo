@@ -4,22 +4,19 @@ import Header from "./components/layouts/Header";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
 
-// delete p  
-
 // clean function
 
 // backend
 // authentication
 
-/* -------------------- unnecessary ---------------------- */
-// edit task 
-// responsive 
-// the ability to close and open tabs
+/* -------------------- unnecessary ---------------------- */ 
 // styling
-// drag and drop
+// responsive
 // dates near title
-// readme
 
+// the ability to close and open tabs 
+// drag and drop
+// readme
 
 function cmpTime(start, end) {
 	return start - end;
@@ -171,6 +168,7 @@ class App extends Component {
 		name: "Ruslan",
 		modify: {
 			status: "none",
+			id: null,
 			title: "",
 			time: "",
 			period: null
@@ -233,9 +231,9 @@ class App extends Component {
 	}
 
 	delPeriod = (id, zero) => {
-		const index = this.getItemIndex(id);
 		zero = zero;
-
+		const index = this.getItemIndex(id);
+		
 		if(index === -1)
 			return;
 		
@@ -250,7 +248,25 @@ class App extends Component {
 		this.setState({ prevTasks: newPrevTasks });
 		this.setState({todos: newTodos});
 	}
+	
+	setModifyPeriod = (id, zero) => {
+		zero = zero;
+		const index = this.getItemIndex(id);
+		
+		if(index === -1)
+			return;
 
+		this.setState({ modify: {
+			status: "block",
+			id: id,
+			title: this.state.todos[index].title,
+			time: this.state.todos[index].start_at,
+			period: this.state.todos[index].period
+		}});
+
+		this.setState( {mode: 0} );
+	}
+	
 	getItemIndex = (id) => {
 		let index = -1;
 		for(let i = 0; i < this.state.todos.length; i++)
@@ -279,6 +295,36 @@ class App extends Component {
 				index = i;
 		}
 		return index;
+	}
+
+	modifyFunc = (id, todo) => {
+		const index = this.getItemIndex(id);
+		
+		if(index === -1)
+			return;
+		
+		let newTodos = this.state.todos;
+		newTodos[index] = {
+			id: id, 
+			title: todo.title,
+			start_at: new moment(todo.time),
+			period: todo.period, 
+			del: newTodos[index].del,
+			completed: newTodos[index].completed
+		};
+
+		let newPrevTasks = this.state.prevTasks.filter((item) => {
+			if(item.parent !== id){
+				return item;
+			}
+		});
+		
+		this.setState({ prevTasks: newPrevTasks });
+		this.setState({todos: newTodos});
+	}
+
+	stModify = ( obj ) => {
+		this.setState({ modify: obj });
 	}
 
 	setDel = (id, time) => {
@@ -495,7 +541,6 @@ class App extends Component {
 				/>	
 			)
 		}
-
 		return ret;
 	}
 
@@ -504,26 +549,28 @@ class App extends Component {
 			case 1:
 				return this.getTodosList(this.delPeriod);
 			case 2: 
-				return "modify";
+				return this.getTodosList(this.setModifyPeriod);;
 			default: 
 				return this.getItems();
 		}
 	}
 
 	render() {
-		console.log(this.state.todos);
 		return (
 			<div className="app">	
 				<Header 
 					addPeriod={this.addPeriod} 
 					changeMode={this.changeMode}	
 					modify={this.state.modify.status}
+					modify_id={this.state.modify.id}
 					modify_title={this.state.modify.title}
 					modify_date={this.state.modify.time}
 					modify_period={this.state.modify.period}
 					name={this.state.name}
 					mode={this.state.mode}
 					shift={this.state.shift}
+					modifyFunc={this.modifyFunc}
+					stModify={this.stModify}
 				/>
 
 				<div className="container">

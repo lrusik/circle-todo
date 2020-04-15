@@ -9,21 +9,23 @@ import moment from "moment";
 
 class Header extends Component {
 	constructor(props) {
-		super(props);
-		this.state = {
-			date1: new moment().format("YYYY-MM-DD"),
-			time1: new moment().format("HH:mm"), 
-			counter: 0,
-			modify_period: props.modify_period,
-			modify_title: props.modify_title,
-			modify_date: new moment(props.modify_date).format("YYYY-MM-DD"),
-			modify_time: new moment(props.modify_date).format("HH:mm")
-		};
-
+		super(props);		
 		this.onTimeChange1 = this.onTimeChange1.bind(this);
 		this.onTimeChange2 = this.onTimeChange2.bind(this);
 	}
 	
+	state = {
+		date1: new moment().format("YYYY-MM-DD"),
+		time1: new moment().format("HH:mm"), 
+		counter: 0,
+		modify_id: this.props.modify_id,
+		modify_period: this.props.modify_period,
+		modify_title: this.props.modify_title,
+		modify_date: new moment(this.props.modify_date).format("YYYY-MM-DD"),
+		modify_time: new moment(this.props.modify_date).format("HH:mm")
+	};
+
+
 	open = (e) => {
 		const field = e.target.parentElement.querySelector(".standart__options");
 		if(field.style.display === "none" || field.style.display === ""){
@@ -32,6 +34,7 @@ class Header extends Component {
 			field.style.display = "none";
 		}
 	}
+	
 	delete = (e) => {
 		this.props.changeMode.bind(this, 1);
 		if(e.target.style.background === ""){
@@ -41,6 +44,46 @@ class Header extends Component {
 			e.target.style.background = "";
 			this.props.changeMode(0);
 		}
+	}
+
+	modify = (e) => {
+		this.props.changeMode.bind(this, 2);
+		if(e.target.style.background === ""){
+			e.target.style.background = "#3266c8";
+			this.props.changeMode(2);
+		} else {
+			e.target.style.background = "";
+			this.props.changeMode(0);
+			this.props.stModify.bind(this, {});
+			this.props.stModify({
+				status: "none",
+				id: null,
+				title: "",
+				time: "",
+				period: null
+			});
+		}
+
+	}
+
+	modifyFunc = (e) => {
+		this.props.modifyFunc.bind(this, 0, {});
+		this.props.modifyFunc(this.state.modify_id, {
+			title: this.state.modify_title,
+			time: (this.state.modify_date + " " + this.state.modify_time),
+			period: this.state.modify_period
+		});
+
+		this.props.stModify.bind(this, {});
+		this.props.stModify({
+			status: "none",
+			id: null,
+			title: "",
+			time: "",
+			period: null
+		});
+
+		e.target.parentElement.parentElement.querySelector(".standart__opt").style.background = "";
 	}
 
 	mark = (e) => {
@@ -55,6 +98,8 @@ class Header extends Component {
 		const inputs = e.target.parentElement.querySelectorAll("input");
 		this.props.addPeriod.bind(this, inputs[0].value, inputs[1].value, (inputs[3].value + " " + inputs[2].value) );
 		this.props.addPeriod(inputs[0].value, inputs[1].value, (inputs[3].value + " " + inputs[2].value) );
+		e.target = e.target.parentElement
+		this.open(e);
 	}
 
 	onChange = (e) => {
@@ -94,6 +139,14 @@ class Header extends Component {
 		this.setState({
 			[e.currentTarget.getAttribute('data-name')]: ( (value) > 0 ) ? (value) : 0 
 		});
+	}
+
+	componentWillReceiveProps(nextProps) {
+		this.setState({ modify_id: nextProps.modify_id });
+		this.setState({ modify_period: nextProps.modify_period });
+		this.setState({ modify_title: nextProps.modify_title });
+		this.setState({ modify_date: new moment(nextProps.modify_date).format("YYYY-MM-DD") });
+		this.setState({ modify_time: new moment(nextProps.modify_date).format("HH:mm") });
 	}
 
 	render() {
@@ -137,7 +190,7 @@ class Header extends Component {
 											<label className="standart__date">
 												<div className="standart__name">Date</div>
 												
-												<input onChange={this.onChange} type="date" name="date1" className="standart__input standart__dateinp" value={this.state.date1} />
+												<input onChange={this.onChange} type="date" data-name="date1" className="standart__input standart__dateinp" value={this.state.date1} />
 
 											</label>
 										</div>
@@ -148,15 +201,17 @@ class Header extends Component {
 							
 							<div className="headerNav__modify modify headerNav__field">
 								<div className="standart__field">
-									<div onClick={this.mark} className="standart__opt">Modify tasks</div>
+									<div onClick={this.modify} className="standart__opt">Edit tasks</div>
 									<div className="standart__options" style={{display: this.props.modify  }}>	
 										<div className="standart__item">
 											<label className="standart__title">
 												<div className="standart__name">Title</div>
 												<input 
+													data-name="modify_title"
+													onChange={this.onChange}
 													className="standart__input standart__titleinp" 
 													type="text" 
-													value={this.props.modify_title}
+													value={this.state.modify_title}
 												/>
 											</label>
 										</div>
@@ -182,10 +237,10 @@ class Header extends Component {
 										<div className="standart__item">
 											<label className="standart__date">
 												<div className="standart__name">Date</div>
-												<input type="date" className="standart__input standart__dateinp" value={this.state.modify_date} /> 
+												<input type="date" onChange={this.onChange} data-name="modify_date" className="standart__input standart__dateinp" value={this.state.modify_date} /> 
 											</label>
 										</div>	
-										<button className="standart__submit">Modify</button>
+										<button onClick={this.modifyFunc} className="standart__submit">Modify</button>
 									</div>
 								</div>
 							</div>
