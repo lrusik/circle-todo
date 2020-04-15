@@ -149,6 +149,29 @@ class Header extends Component {
 		this.setState({ modify_time: new moment(nextProps.modify_date).format("HH:mm") });
 	}
 
+	componentDidMount() {
+		document.addEventListener("click", this.closeIfNotInTab);	
+	}
+
+	closeIfNotInTab = (e) => {
+		const elements = document.querySelectorAll(".standart__field");
+		for(let i = 0; i < elements.length; i++) {	
+			const ptnas = elements[i].querySelector("." + e.target.className); 
+			if(ptnas === null ) {
+				elements[i].querySelector(".standart__options").style.display = "none";  
+				this.props.stModify.bind(this, {});
+				this.props.stModify({
+					status: "none",
+					id: null,
+					title: "",
+					time: "",
+					period: null
+				}); 
+			}
+
+		}
+	}
+
 	render() {
 		return (
 			<div className="headerStyle">
@@ -159,6 +182,7 @@ class Header extends Component {
 							<div className="headerNav__add headerNav__field add">
 								<div className="standart__field">
 									<div onClick={this.open} className="standart__opt">Add task</div>
+								
 									<div className="standart__options">	
 										<div className="standart__item">
 											<label className="standart__title">
