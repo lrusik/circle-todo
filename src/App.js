@@ -1,13 +1,21 @@
 import React, { Component } from 'react';
 import TodoItem from "./components/TodoItem";
 import Header from "./components/layouts/Header";
+import Auth from "./components/layouts/Auth";
 import { v4 as uuidv4 } from 'uuid';
 import  moment  from "moment";
+import {
+	BrowserRouter as Router,
+	Switch,
+	Route
+} from "react-router-dom";
+
+
+// demo to backend
+// state to object
+// backend
 
 // clean function
-
-// backend
-// authentication
 
 /* -------------------- unnecessary ---------------------- */ 
 // styling
@@ -557,28 +565,35 @@ class App extends Component {
 
 	render() {
 		return (
-			<div className="app">	
-				<Header 
-					addPeriod={this.addPeriod} 
-					changeMode={this.changeMode}	
-					modify={this.state.modify.status}
-					modify_id={this.state.modify.id}
-					modify_title={this.state.modify.title}
-					modify_date={this.state.modify.time}
-					modify_period={this.state.modify.period}
-					name={this.state.name}
-					mode={this.state.mode}
-					shift={this.state.shift}
-					modifyFunc={this.modifyFunc}
-					stModify={this.stModify}
-				/>
+			<Router>
+				<Switch>
+					<Route path="/auth">
+						<Auth />
+					</Route>
+					<Route path="/">
+						<div className="app">	
+							<Header 
+								addPeriod={this.addPeriod} 
+								changeMode={this.changeMode}	
+								modify={this.state.modify.status}
+								modify_id={this.state.modify.id}
+								modify_title={this.state.modify.title}
+								modify_date={this.state.modify.time}
+								modify_period={this.state.modify.period}
+								name={this.state.name}
+								mode={this.state.mode}
+								shift={this.state.shift}
+								modifyFunc={this.modifyFunc}
+								stModify={this.stModify}
+							/>
 
-				<div className="container">
-					{
-						this.selector(this.state.mode)
-					}
-				</div>	
-			</div>
+							<div className="container">
+								{this.selector(this.state.mode)}
+							</div>	
+						</div>
+					</Route>
+				</Switch>
+			</Router>
 		);
 	}
 }

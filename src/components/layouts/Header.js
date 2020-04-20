@@ -4,7 +4,6 @@ import TimeField from 'react-simple-timefield';
 
 import moment from "moment";
 
-// close all tabs on click not in tab
 // check if field empty
 
 class Header extends Component {
@@ -154,21 +153,29 @@ class Header extends Component {
 	}
 
 	closeIfNotInTab = (e) => {
+		return;
 		const elements = document.querySelectorAll(".standart__field");
-		for(let i = 0; i < elements.length; i++) {	
-			const ptnas = elements[i].querySelector("." + e.target.className); 
-			if(ptnas === null ) {
-				elements[i].querySelector(".standart__options").style.display = "none";  
-				this.props.stModify.bind(this, {});
-				this.props.stModify({
-					status: "none",
-					id: null,
-					title: "",
-					time: "",
-					period: null
-				}); 
-			}
+		let sMark = 0;
+		if(e.target.className === "")
+			return;
 
+		for(let i = 0; i < elements.length; i++) {	
+			const ptnas = elements[i].querySelector("." + e.target.classList[0]);
+			if(ptnas === null ) {
+				elements[i].querySelector(".standart__options").style.display = "none";   
+				sMark = 1;
+			}
+		}
+		
+		if(sMark) {
+			this.props.stModify.bind(this, {});
+			this.props.stModify({
+				status: "none",
+				id: null,
+				title: "",
+				time: "",
+				period: null
+			});
 		}
 	}
 
