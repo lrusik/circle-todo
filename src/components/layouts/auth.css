@@ -41,3 +41,9 @@
    color: white;
    margin-top: 10px;
 }
+
+.auth__or {
+   margin: 0 50px;
+   font-size: 20px;
+   font-weight: 500;
+}

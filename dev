@@ -1,2 +1,2 @@
 #!/bin/bash
-node node_modules/nodemon/bin/nodemon.js server.js
+node --experimental-modules node_modules/nodemon/bin/nodemon.js server.js

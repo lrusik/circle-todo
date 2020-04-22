@@ -22,6 +22,14 @@ const userShema = new mongoose.Schema({
 	date: {
 		type: Date, 
 		default: Date.now
+	}, 
+	todos: {
+		type: Array, 
+		default: {}
+	}, 
+	prevTasks: {
+		type: Array, 
+		default: {}
 	}
 });
 

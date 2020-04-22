@@ -9,15 +9,14 @@ import {
 	Switch,
 	Route
 } from "react-router-dom";
-
-
-// demo to backend
-// state to object
-// backend
+import serverAdr from "./demo";
+import axios from 'axios';
 
 // clean function
 
 /* -------------------- unnecessary ---------------------- */ 
+// error handling
+// modify save to db
 // styling
 // responsive
 // dates near title
@@ -61,129 +60,55 @@ function compareDays(date1, date2) {
 	return retDate1 - retDate2
 }
 
+
 class App extends Component {
-	state = {
-		todos: [
-			{
-				id: 0, 
-				title: "task 0",
-				start_at: addDays(new moment(), 0).format("YYYY-MM-DD HH:mm:ss"),
-				period: 1,
-				del: [],
-				completed: []
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			todos: [],
+			prevTasks: [],
+			mode: 0,
+			shift: 0, 
+			name: "",
+			modify: {
+				status: "none",
+				id: null,
+				title: "",
+				time: "",
+				period: null
 			},
-			{
-				id: 1, 
-				title: "task 1",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 1),
-				period: 2,
-				del: [], 
-				completed: []
-			},
-			{
-				id: 2, 
-				title: "task 2",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 2),
-				period: 2, 
-				del: [], 
-				completed: []
-			},
-			{
-				id: 3, 
-				title: "task 3",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 3),
-				period: 1,
-				del: [], 
-				completed: []
-			},
-			{
-				id: 4, 
-				title: "task 4",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 4),
-				period: 2,
-				del: [], 
-				completed: []
-			},
-			{
-				id: 5, 
-				title: "task 5",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 5),
-				period: 2, 
-				del: [], 
-				completed: []
-			},
-			{
-				id: 6, 
-				title: "task 6",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 6),
-				period: 2,
-				del: [], 
-				completed: []
-			},
-			{
-				id: 7, 
-				title: "task 7",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 7),
-				period: 2, 
-				del: [], 
-				completed: []
-			},
-			{
-				id: 8, 
-				title: "Not finished yet",
-				start_at: new moment().format("YYYY-MM-DD HH:mm:ss"),
-				period: 1,
-				del: [],
-				completed: []
-			},
-			{
-				id: 9, 
-				title: "Once",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 0),
-				period: 0,
-				del: [],
-				completed: []
-			},
-			{
-				id: 10, 
-				title: "Twice",
-				start_at: addDays(new moment().format("YYYY-MM-DD HH:mm:ss"), 6),
-				period: 0,
-				del: [],
-				completed: []
-			},
-			{
-				id: 11, 
-				title: "Hui",
-				start_at: subDays(new moment(), 1).format("YYYY-MM-DD HH:mm:ss"),
-				period: 3,
-				del: [],
-				completed: []
-			},
-		], 
-		prevTasks: [
-			{
-				id: 12,
-				title: "Not finished yet",
-				parent: 8, 
-				time: subDays(new moment(), 1).format("YYYY-MM-DD HH:mm:ss"),
-				completed: false, 
-				del: false
-			}
-		],
-		mode: 0,
-		shift: 0, 
-		name: "Ruslan",
-		modify: {
-			status: "none",
-			id: null,
-			title: "",
-			time: "",
-			period: null
-		},
-		length: 55
-	}	
+			length: 0
+		}
+
+		this.setToken(this.getLocalToken());
+	}
 	
+	setLocalToken = (token) => {
+		window.localStorage.setItem('token', token);
+	}
+
+	getLocalToken = () => {
+		return window.localStorage.getItem('token');
+	}
+	
+	setToken = (newToken) => {
+		this.setLocalToken(newToken);
+		this.setName()
+		this.getAllTodos();
+	}
+
+	getAllTodos = () => {
+		axios.get(serverAdr + "/api/db/get", {headers: {"auth-token": this.getLocalToken()}})
+		.then((res) => {
+			this.setState({todos: res.data.todos});
+			this.setState({prevTasks: res.data.prevTasks});
+      }).catch((err) => {
+			console.log(err);
+         //this.showError(err.response.data);
+		})
+	}
+
 	changeMode = (mode_num) => {
 		/*
 			* available modes 
@@ -219,17 +144,39 @@ class App extends Component {
 		console.log("Alarm");
 	}
 
+	saveToDb = (data) => {
+		console.log("Here i am");
+		axios({
+         method: 'post',
+         url: serverAdr + "/api/db/set",
+			data: data,
+			headers: {
+				'auth-token': this.getLocalToken()
+		 	},
+      }).then((res) => {
+         console.log("everything is fine");
+      }).catch((err) => {
+			console.log("There is an error out thee");
+         //this.showError(err.response.data);
+      })
+	}
+
 	addPeriod = (title, period, time) => {
 		time = moment(moment(time, "YYYY-MM-DD HH:mm:ss").toDate());
 		try { 
-			this.setState( { todos: [ ...this.state.todos, ...[{
+			const newTodos = [ ...this.state.todos, ...[{
 				id: this.state.length + 1, 
 				title: title,
 				start_at: time,
 				period: parseInt(period, 10),
 				del: [],
 				completed: []
-			}] ]});
+			}] ];
+			this.setState( { todos: newTodos});
+			this.saveToDb({
+				todos: newTodos,
+				field: 0
+			})
 		}
 		catch(err) {
 			console.log(err);
@@ -253,6 +200,10 @@ class App extends Component {
 			}
 		});
 		
+		this.saveToDb({
+			todos: newTodos,
+			field: 0
+		})
 		this.setState({ prevTasks: newPrevTasks });
 		this.setState({todos: newTodos});
 	}
@@ -278,10 +229,16 @@ class App extends Component {
 	getItemIndex = (id) => {
 		let index = -1;
 		for(let i = 0; i < this.state.todos.length; i++)
-			if(this.state.todos[i].id === id) {
-				index = i;
-				break;
+			try {
+				if(this.state.todos[i].id === id) {
+					index = i;
+					break;
+				}
 			}
+			catch(err) {
+				console.log("Formating error: ", err);
+			}
+
 		return index;
 	}
 	
@@ -491,38 +448,43 @@ class App extends Component {
 		ret = ret.concat(this.getNotFinishedTasks());
 		
 		for(let j = 0; j < 6; j++) {
-			let jezt = addDays(now, j  );
+			let jezt = addDays(now, j);
 			
 			if(j)
 				ret.push(<div className="todoitem-title">{titles[j]}</div>);
 			
 			ret.push(
 				this.state.todos.map( (todo) => {
-					let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
-					if(
-						(this.findIfInOpts("del", todo.id, addDays(todo.start_at, j)) === -1) && 
-						(
+					try {
+						let difference = Math.round(moment.duration(moment(todo.start_at).diff(jezt)).asDays() );
+						if(
+							(this.findIfInOpts("del", todo.id, addDays(todo.start_at, j)) === -1) && 
 							(
-								(!todo.period && !compareDays(jezt, todo.start_at) )  
-							) ||
-							(	
-								(todo.period) &&
-								(!(difference % todo.period)) &&
-								(compareDays(jezt, todo.start_at) >= 0)		
+								(
+									(!todo.period && !compareDays(jezt, todo.start_at) )  
+								) ||
+								(	
+									(todo.period) &&
+									(!(difference % todo.period)) &&
+									(compareDays(jezt, todo.start_at) >= 0)		
+								)
 							)
-						)
-					){
-						return (
-							<TodoItem
-								key={uuidv4()}
-								id={todo.id} 
-								title={todo.title} 
-								time={addDays(todo.start_at, j)} 
-								changeComplete={this.changeComplete}
-								delTodo={this.delTodo}
-								completed={this.isComplete(todo.id, addDays(todo.start_at, j))}
-							/>	
-						)
+						){
+							return (
+								<TodoItem
+									key={uuidv4()}
+									id={todo.id} 
+									title={todo.title} 
+									time={addDays(todo.start_at, j)} 
+									changeComplete={this.changeComplete}
+									delTodo={this.delTodo}
+									completed={this.isComplete(todo.id, addDays(todo.start_at, j))}
+								/>	
+							)
+						}
+					}
+					catch(err) {
+						console.log("item format error: ", err);
 					}
 				})
 			);
@@ -536,18 +498,24 @@ class App extends Component {
 	getTodosList = (callback) => {
 		let ret = [];
 		for (let todo of Array.from(this.state.todos).reverse()) {
-			ret.push(
-				<TodoItem
-					key={uuidv4()}
-					id={todo.id} 
-					title={todo.title} 
-					time={""} 
-					changeComplete={callback}
-					delTodo={this.delTodo}
-					completed={null}
-					addClass="animate"
-				/>	
-			)
+			try {
+				ret.push(
+					
+					<TodoItem
+						key={uuidv4()}
+						id={todo.id} 
+						title={todo.title} 
+						time={""} 
+						changeComplete={callback}
+						delTodo={this.delTodo}
+						completed={null}
+						addClass="animate"
+					/>	
+				);
+			}
+			catch(err) {
+				console.log("item format error: ", err);
+			}
 		}
 		return ret;
 	}
@@ -562,13 +530,22 @@ class App extends Component {
 				return this.getItems();
 		}
 	}
+	setName = () => {
+		axios.get(serverAdr + "/api/db/getName", {headers: {"auth-token": this.getLocalToken()}})
+		.then((res) => {
+			this.setState({name: res.data.name});
+		}).catch((err) => {
+			console.log(err);
+			//this.showError(err.response.data);
+		})
+	} 
 
 	render() {
 		return (
 			<Router>
 				<Switch>
 					<Route path="/auth">
-						<Auth />
+						<Auth setToken={this.setToken}/>
 					</Route>
 					<Route path="/">
 						<div className="app">	

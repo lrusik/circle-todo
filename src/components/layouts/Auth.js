@@ -43,6 +43,25 @@ class Auth extends Component {
       })
    }
 
+   login = () => {      
+      const inputs = document.querySelectorAll(".login__input");
+      this.hideError();
+      axios({
+         method: 'post',
+         url: serverAdr + "/api/user/login",
+         data: {
+            email: inputs[0].value,
+            password: inputs[1].value
+         }
+      }).then((res) => {
+         this.props.setToken.bind(this, "");
+         this.props.setToken(res.data);
+         this.setState({finished:true});
+      }).catch((err) => {
+         this.showError(err.response.data);
+      })
+   }
+
    render() {
       if(this.state.finished) {
          this.setState({finished: false});
@@ -60,6 +79,12 @@ class Auth extends Component {
               <input type="text" className="register__input" placeholder="Password"/>
               <button className="register__input register__button" onClick={this.register}>Register</button>
             </div>   
+            <div className="auth__or">OR</div>
+            <div className="auth__item login"> 
+               <input type="text" className="login__input register__input" placeholder="Your email"/>
+              <input type="text" className="login__input register__input" placeholder="Password"/>
+              <button className="register__input register__button" onClick={this.login}>Register</button>
+            </div>
          </div>
       );
    }

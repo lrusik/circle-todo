@@ -5,12 +5,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 router.post('/register', async (req, res) => {
-	let headers = {};
-	headers["Access-Control-Allow-Origin"] = "*";
-	headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS";
-	headers["Access-Control-Allow-Credentials"] = false;
-	headers["Access-Control-Max-Age"] = '86400'; // 24 hours
-	res.set(headers);
 	//Validate input
 	const error = validateRegister(req.body)
 	if(error)
@@ -41,18 +35,11 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-	let headers = {};
-	headers["Access-Control-Allow-Origin"] = "*";
-	headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS";
-	headers["Access-Control-Allow-Credentials"] = false;
-	headers["Access-Control-Max-Age"] = '86400'; // 24 hours
-	res.set(headers);
-
 	//Validate input
 	const error = validateLogin(req.body)
 	if(error)
 		return res.status(400).send(error.details[0].message);
-		
+
 	//Validate user
 	const userExists = await User.findOne({email: req.body.email});
 	if(!userExists) 
@@ -61,7 +48,7 @@ router.post('/login', async (req, res) => {
 	const validPass = await bcrypt.compare(req.body.password, userExists.password);
 	if(!validPass)
 		return res.status(400).send("Invalid passowrd");
- 
+
 	//Create and assign a token 
 	const token = jwt.sign( { _id: userExists._id }, process.env.MY_SECRET );
 	res.header('auth-token', token).send(token);	
